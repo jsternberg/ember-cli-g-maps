@@ -23,6 +23,14 @@ export default TextField.extend({
       assert('g-autocomplete component must have a tagName of `input`', this.element instanceof HTMLInputElement);
     }
 
+    this.keyListener = function(e) {
+      let key = e.keyCode || e.which;
+      if (key === 13) {
+        e.preventDefault();
+        return false;
+      }
+    };
+    this.element.addEventListener('keydown', this.keyListener);
     loadGoogleMaps().then(() => this.setup(this.element));
   },
 
@@ -51,6 +59,7 @@ export default TextField.extend({
         place: placeResult
       });
     }));
+
   },
 
   didAutocomplete(place) {
@@ -59,6 +68,10 @@ export default TextField.extend({
 
   willDestroyElement() {
     this._super(...arguments);
+    if (this.keyListener) {
+      this.element.removeEventListener('keydown', this.keyListener);
+      this.keyListener = null;
+    }
     this.teardown();
   },
 
